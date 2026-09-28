@@ -3,15 +3,14 @@
 A toolkit for merging AI models — combine the weights of multiple
 fine-tuned models into a single model.
 
-> Early development (v0.0.2). No merge methods are implemented yet and
-> the API is unstable.
+> Early development (v0.0.3). The API is unstable.
 
-## Planned features
+## Features
 
-- Multiple merge methods (linear weight averaging, SLERP, TIES,
-  task arithmetic, ...)
-- Config-driven merge recipes
-- `merge` CLI command (currently a stub)
+- Merge methods: **MoE** (mixture-of-experts, frankenMoE style)
+- Planned: linear weight averaging, SLERP, TIES, task arithmetic, ...
+- Model weight loading (`.safetensors`, `.pt`, `.bin`, sharded dirs)
+- CLI for inspecting and merging models
 
 ## Installation
 
@@ -25,7 +24,15 @@ pip install -e .
 mergekit --version
 mergekit info path/to/model.safetensors   # list tensors in a weight file
 mergekit info path/to/model-dir/          # or a directory of shards
-mergekit merge model_a model_b            # not implemented yet
+
+# MoE merge: each model's MLP tensors become a separate expert,
+# shared tensors come from the first model
+mergekit merge model_a.safetensors model_b.safetensors \
+    -o merged.safetensors --method moe
+
+# method parameters via repeatable --param key=value
+mergekit merge a.safetensors b.safetensors -o out.pt \
+    --param expert_pattern="mlp" --param router_init=zeros
 ```
 
 ## Project structure
@@ -33,9 +40,12 @@ mergekit merge model_a model_b            # not implemented yet
 ```
 mergekit/
 ├── cli.py      # Command-line interface
-├── methods/    # Merge method implementations (coming soon)
-├── core/       # Merging engine and model loading
-│   └── loader.py   # State dict loading (.safetensors, .pt, .bin, ...)
+├── methods/    # Merge method implementations
+│   ├── base.py     # MergeMethod ABC + registry
+│   └── moe.py      # MoE (mixture-of-experts) merge
+├── core/       # Merging engine and model I/O
+│   ├── loader.py   # State dict loading (.safetensors, .pt, .bin, ...)
+│   └── saver.py    # State dict saving
 └── utils/      # Shared helpers
 tests/          # Test suite
 examples/       # Usage examples
@@ -47,3 +57,7 @@ examples/       # Usage examples
 pip install -e ".[dev]"
 pytest
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
