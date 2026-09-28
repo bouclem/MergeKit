@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mergekit"
+version = "0.0.1"
+description = "A toolkit for merging AI models"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["model-merging", "llm", "machine-learning", "pytorch"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# Core dependencies (torch, transformers, ...) will be added
+# when the first merge method lands.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["mergekit*"]
